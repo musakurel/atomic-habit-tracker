@@ -1,4 +1,3 @@
-import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,12 +7,20 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
-
+import Moment from "moment"
+import { extendMoment } from 'moment-range';
+import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import TabsUnstyled from "@mui/base/TabsUnstyled";
 import TabsListUnstyled from "@mui/base/TabsListUnstyled";
 import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
+import { useState } from "react";
+import { useSelector, useDispatch } from 'react-redux'
+import { addHabit, removeHabit, updateHabit } from "./redux/UserReducer";
+import UseReducer from "./UseReducer";
+const moment = extendMoment(Moment);
+
 const blue = {
   50: "#F0F7FF",
   100: "rgba(255, 255, 255, 0.1)",
@@ -112,29 +119,31 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
+const AddBox=styled(AddBoxOutlinedIcon)(({ theme }) => ({
+  
+  fontSize: "1.5rem",
+  margin: "0.5rem",
+  color: "rgba(0, 0, 0, 0.24)",
+  cursor: "pointer",
+  "&:hover": {
+    color: "rgba(0, 0, 0, 0.48)",
+  },
+}));
 
 function createData(name) {
   return { name };
 }
-const data = {};
-const newVar = (n) => {
-  for (let i = 0; i < n; i++) {
-    return <StyledTableCell align="right">{i}</StyledTableCell>;
-  }
-};
+
+const monthArray = (m) => {
+  const range = moment().range(moment(m).startOf('month'), moment(m).endOf('month'));
+  const days = range.by('days');
+  return [...days].map(date => date.format(`DD`))
+}
 
 const rows = [
-  createData(
-    "Frozen yoghurt",
-    <Checkbox color="default" />,
-    <Checkbox color="secondary" />,
-    <Checkbox color="secondary" />,
-    <Checkbox color="secondary" />
-  ),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
+"1",
+"2",
+  
 ];
 
 const newArr = [
@@ -143,82 +152,98 @@ const newArr = [
 ];
 
 export default function CustomizedTables() {
+ console.log(monthArray(moment()))
+ const habits = useSelector((state) => state.user)
+
+console.log(habits)
+  const dispatch = useDispatch()
+
+  const [sendingrow, setSendingRow] = useState(null)
+  
   return (
     <Root sx={{ width: "90%", marginLeft: "59px" }}>
       <h1>Atomic Habit Tracker</h1>
-      <TabsUnstyled sx={{ width: "20%"}} defaultValue={0}>
+      <TabsUnstyled sx={{ width: "20%" }} defaultValue={0}>
         <TabsList>
-          <Tab>Nov</Tab>
-          <Tab>Dec</Tab>
-          <Tab>Jan</Tab>
-          <Tab>Feb</Tab>
-          <Tab>March</Tab>
+          <Tab>{moment().subtract(1, "months").format("MMMM")}</Tab>
+          <Tab>{moment().format("MMMM")}</Tab>
+          <Tab>{moment().add(1, "months").format("MMMM")}</Tab>
+          <Tab>{moment().add(2, "months").format("MMMM")}</Tab>
         </TabsList>
-        <TabPanel value={2}>
-        
-        
-        <TableContainer
-        sx={{
-          backgroundColor: "transparent",
-        }}
-        component={Paper}
-      >
-        <Table sx={{ minWidth: 700 }} aria-label="customized table">
-          <TableHead
+        <TabPanel value={0}>
+          <TableContainer
             sx={{
-              backgroundColor: "white",
-              padding: "10px",
+              backgroundColor: "transparent",
             }}
+            component={Paper}
           >
-            <TableRow>
-              <StyledTableCell>Habits</StyledTableCell>
-              {newArr.map((row) => (
-                <StyledTableCell align="right">{row}</StyledTableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => (
-              <StyledTableRow key={row.name}>
-                <StyledTableCell
-                  sx={{ width: "509px" }}
-                  component="th"
-                  scope="row"
-                >
-                  <input
-                    type="text"
-                    placeholder="Habit"
-                    className="thcontent"
-                  />
-                </StyledTableCell>
+            <Table sx={{ minWidth: 700 }} aria-label="customized table">
+              <TableHead
+                sx={{
+                  backgroundColor: "white",
+                  padding: "10px",
+                }}
+              >
+                <TableRow>
+                  <StyledTableCell>Habits</StyledTableCell>
+                  {monthArray(moment())?.map((row) => (
+                    <StyledTableCell align="right">{row}</StyledTableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {habits?.map((row) => (
+                  <StyledTableRow key={row.name}>
+                    <StyledTableCell
+                      sx={{ width: "509px" }}
+                      component="th"
+                      scope="row"
+                    >
+                      <input
+                        type="text"
+                        placeholder="Habit"
+                        className="thcontent"
+                        defaultValue={row.name}
+                        key={row.id}
+                        onBlur={(e) =>
+                          dispatch(
+                            updateHabit({
+                              id: row.id,
+                              name: e.target.value,
+                            })
+                          )
+                        }
+                      />
+                    </StyledTableCell>
 
-                {newArr.map((select) => (
-                  <StyledTableCell align="right">
-                    <Checkbox
-                      sx={{
-                        color: "#FBFFE2",
-                        "&.Mui-checked": {
-                          color: "#FBFFE2",
-                          opacity: 0.8,
-                        },
-                      }}
-                    />
-                  </StyledTableCell>
+                    {monthArray(moment())?.map((select) => (
+                      <StyledTableCell align="right">
+{/*                         {row.name + " " + select}
+ */}                        <Checkbox
+                          sx={{
+                            color: "#FBFFE2",
+                            "&.Mui-checked": {
+                              color: "#FBFFE2",
+                              opacity: 0.8,
+                            },
+                          }}
+                        />
+                      </StyledTableCell>
+                    ))}
+                  </StyledTableRow>
                 ))}
-              </StyledTableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-        
-        
-        
-        
+              </TableBody>
+            </Table>
+            
+            
+          <AddBox onClick={() =>
+            dispatch(addHabit(""))
+          }  />
+       
+          </TableContainer>
         </TabPanel>
-        <TabPanel value={1}>Second content</TabPanel>
-        <TabPanel value={3}>Third content</TabPanel>
+  
       </TabsUnstyled>
-      
     </Root>
   );
 }
