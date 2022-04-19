@@ -7,18 +7,16 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
-import Moment from "moment"
-import { extendMoment } from 'moment-range';
-import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
+import Moment from "moment";
+import { extendMoment } from "moment-range";
+import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
 import TabsUnstyled from "@mui/base/TabsUnstyled";
 import TabsListUnstyled from "@mui/base/TabsListUnstyled";
 import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
-import { useState } from "react";
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from "react-redux";
 import { addHabit, removeHabit, updateHabit } from "./redux/UserReducer";
-import UseReducer from "./UseReducer";
 const moment = extendMoment(Moment);
 
 const blue = {
@@ -119,8 +117,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-const AddBox=styled(AddBoxOutlinedIcon)(({ theme }) => ({
-  
+const AddBox = styled(AddBoxOutlinedIcon)(({ theme }) => ({
   fontSize: "1.5rem",
   margin: "0.5rem",
   color: "rgba(0, 0, 0, 0.24)",
@@ -135,31 +132,19 @@ function createData(name) {
 }
 
 const monthArray = (m) => {
-  const range = moment().range(moment(m).startOf('month'), moment(m).endOf('month'));
-  const days = range.by('days');
-  return [...days].map(date => date.format(`DD`))
-}
-
-const rows = [
-"1",
-"2",
-  
-];
-
-const newArr = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
-  23, 24, 25, 26, 27, 28, 29, 30,
-];
+  const range = moment().range(
+    moment(m).startOf("month"),
+    moment(m).endOf("month")
+  );
+  const days = range.by("days");
+  return [...days].map((date) => date.format(`DD`));
+};
 
 export default function CustomizedTables() {
- console.log(monthArray(moment()))
- const habits = useSelector((state) => state.user)
+  const habits = useSelector((state) => state.user);
 
-console.log(habits)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const [sendingrow, setSendingRow] = useState(null)
-  
   return (
     <Root sx={{ width: "90%", marginLeft: "59px" }}>
       <h1>Atomic Habit Tracker</h1>
@@ -218,8 +203,9 @@ console.log(habits)
 
                     {monthArray(moment())?.map((select) => (
                       <StyledTableCell align="right">
-{/*                         {row.name + " " + select}
- */}                        <Checkbox
+                        {/*                         {row.name + " " + select}
+                         */}{" "}
+                        <Checkbox
                           sx={{
                             color: "#FBFFE2",
                             "&.Mui-checked": {
@@ -234,15 +220,10 @@ console.log(habits)
                 ))}
               </TableBody>
             </Table>
-            
-            
-          <AddBox onClick={() =>
-            dispatch(addHabit(""))
-          }  />
-       
+
+            <AddBox onClick={() => dispatch(addHabit(""))} />
           </TableContainer>
         </TabPanel>
-  
       </TabsUnstyled>
     </Root>
   );
