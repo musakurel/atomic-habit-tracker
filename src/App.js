@@ -19,7 +19,12 @@ import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
-import { addHabit, editHabit, deleteHabit } from "./redux/UserReducer";
+import {
+  addHabit,
+  editHabit,
+  deleteHabit,
+  addCheckedDay,
+} from "./redux/UserReducer";
 const moment = extendMoment(Moment);
 
 const blue = {
@@ -140,17 +145,13 @@ const RemoveBox = styled(HighlightOffIcon)(({ theme }) => ({
   },
 }));
 
-function createData(name) {
-  return { name };
-}
-
 const monthArray = (m) => {
   const range = moment().range(
     moment(m).startOf("month"),
     moment(m).endOf("month")
   );
   const days = range.by("days");
-  return [...days].map((date) => date.format(`DD`));
+  return [...days].map((date) => date.format(`DD-MM-YYYY`));
 };
 
 export default function CustomizedTables() {
@@ -184,7 +185,9 @@ export default function CustomizedTables() {
                 <TableRow>
                   <StyledTableCell>Habits</StyledTableCell>
                   {monthArray(moment())?.map((row) => (
-                    <StyledTableCell align="right">{row}</StyledTableCell>
+                    <StyledTableCell align="right">
+                      {row.substring(0, 2)}
+                    </StyledTableCell>
                   ))}
                 </TableRow>
               </TableHead>
@@ -213,10 +216,9 @@ export default function CustomizedTables() {
                           "&:focus": {
                             "& .RemoveBox": {
                               visibility: "hidden",
-
                             },
                           },
-                        
+
                           "&:hover": {
                             "& .RemoveBox": {
                               visibility: "visible",
@@ -225,7 +227,6 @@ export default function CustomizedTables() {
                           "&:before": {
                             borderBottom: "none",
                           },
-                         
                         }}
                         startAdornment={
                           <InputAdornment
@@ -247,9 +248,13 @@ export default function CustomizedTables() {
                       />
                     </StyledTableCell>
 
-                    {monthArray(moment())?.map((select) => (
+                    {monthArray(moment().format())?.map((select) => (
                       <StyledTableCell align="right">
                         <Checkbox
+                          onChange={() =>
+                            dispatch(addCheckedDay({ id: row.id, day: select }))
+                          }
+                          checked={row.checkedDays.includes(select)}
                           sx={{
                             color: "#FBFFE2",
                             "&.Mui-checked": {
@@ -265,7 +270,7 @@ export default function CustomizedTables() {
               </TableBody>
             </Table>
 
-            <AddBox onClick={() => dispatch(addHabit(""))} />
+            <AddBox onClick={() => dispatch(addHabit("", []))} />
           </TableContainer>
         </TabPanel>
       </TabsUnstyled>
