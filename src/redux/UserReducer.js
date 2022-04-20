@@ -21,19 +21,18 @@ const habitSlice = createSlice({
         return { payload: { id, name } };
       },
     },
-    removeHabit: {
-      reducer(state, action) {
-        state.splice(action.payload, 1);
-      },
+    editHabit: (state, action) => {
+      const { id, name } = action.payload;
+      const habitIndex = state.findIndex((habit) => habit.id === id);
+      state[habitIndex].name = name;
+      return state;
     },
-    updateHabit: {
-      reducer(state, action) {
-        state.filter((habit) => habit.id === action.payload.id)[0].name =
-          action.payload.name;
-      },
+
+    deleteHabit: (state, action) => {
+      return state.filter((habit) => habit.id !== action.payload);
     },
   },
 });
 
-export const { addHabit, removeHabit, updateHabit } = habitSlice.actions;
+export const { addHabit, deleteHabit, editHabit } = habitSlice.actions;
 export default habitSlice.reducer;

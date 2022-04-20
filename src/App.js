@@ -7,16 +7,19 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
+import Input from "@mui/material/Input";
+import InputAdornment from "@mui/material/InputAdornment";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
 import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import TabsUnstyled from "@mui/base/TabsUnstyled";
 import TabsListUnstyled from "@mui/base/TabsListUnstyled";
 import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
-import { useSelector, useDispatch } from "react-redux";
-import { addHabit, removeHabit, updateHabit } from "./redux/UserReducer";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
+import { addHabit, editHabit, deleteHabit } from "./redux/UserReducer";
 const moment = extendMoment(Moment);
 
 const blue = {
@@ -116,8 +119,18 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   "&:last-child td, &:last-child th": {
     border: 0,
   },
+  margin: "200px 200px",
 }));
 const AddBox = styled(AddBoxOutlinedIcon)(({ theme }) => ({
+  fontSize: "1.5rem",
+  margin: "0.5rem",
+  color: "rgba(0, 0, 0, 0.24)",
+  cursor: "pointer",
+  "&:hover": {
+    color: "rgba(0, 0, 0, 0.48)",
+  },
+}));
+const RemoveBox = styled(HighlightOffIcon)(({ theme }) => ({
   fontSize: "1.5rem",
   margin: "0.5rem",
   color: "rgba(0, 0, 0, 0.24)",
@@ -141,8 +154,7 @@ const monthArray = (m) => {
 };
 
 export default function CustomizedTables() {
-  const habits = useSelector((state) => state.user);
-
+  const habits = useSelector((state) => state.user, shallowEqual);
   const dispatch = useDispatch();
 
   return (
@@ -177,25 +189,59 @@ export default function CustomizedTables() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {habits?.map((row) => (
-                  <StyledTableRow key={row.name}>
+                {habits?.map((row, index) => (
+                  <StyledTableRow key={row.id}>
                     <StyledTableCell
                       sx={{ width: "509px" }}
                       component="th"
                       scope="row"
                     >
-                      <input
+                      <Input
                         type="text"
                         placeholder="Habit"
                         className="thcontent"
                         defaultValue={row.name}
                         key={row.id}
+                        sx={{
+                          width: "200px",
+                          backgroundColor: "transparent",
+                          border: "none",
+                          padding: "5px 15px 5px 40px",
+                          "& .RemoveBox": {
+                            visibility: "hidden",
+                          },
+                          "&:focus": {
+                            "& .RemoveBox": {
+                              visibility: "hidden",
+
+                            },
+                          },
+                        
+                          "&:hover": {
+                            "& .RemoveBox": {
+                              visibility: "visible",
+                            },
+                          },
+                          "&:before": {
+                            borderBottom: "none",
+                          },
+                         
+                        }}
+                        startAdornment={
+                          <InputAdornment
+                            sx={{ marginLeft: "-45px" }}
+                            position="start"
+                          >
+                            <RemoveBox
+                              className="RemoveBox"
+                              onClick={() => dispatch(deleteHabit(row.id))}
+                              edge="start"
+                            ></RemoveBox>
+                          </InputAdornment>
+                        }
                         onBlur={(e) =>
                           dispatch(
-                            updateHabit({
-                              id: row.id,
-                              name: e.target.value,
-                            })
+                            editHabit({ id: row.id, name: e.target.value })
                           )
                         }
                       />
@@ -203,8 +249,6 @@ export default function CustomizedTables() {
 
                     {monthArray(moment())?.map((select) => (
                       <StyledTableCell align="right">
-                        {/*                         {row.name + " " + select}
-                         */}{" "}
                         <Checkbox
                           sx={{
                             color: "#FBFFE2",
